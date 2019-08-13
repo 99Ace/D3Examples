@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>D3 and Scalable Vector Graphics</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/dc/2.1.8/dc.min.css" type="text/css" />
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter/1.3.12/crossfilter.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/dc/2.1.8/dc.js"></script>
+</head>
+<body>
+    
+    <div id="name-chart"></div>
+    <div id="store-chart"></div>
+    <div id="state-chart"></div>
+    <script>
+        var transactionsData = [
+            {"name": "Tom", "store": "Dwarf", "state": "North", "spend": 100},
+            {"name": "Tom", "store": "Big Co.", "state": "North", "spend": 200},
+            {"name": "Bob", "store": "Giant", "state": "South", "spend": 150},
+            {"name": "Bob", "store": "Hot Storage", "state": "West", "spend": 200},
+            {"name": "Marcus", "store": "Hot Storage", "state": "East", "spend": 200},
+            {"name": "Tammy", "store": "Hot Storage", "state": "Town", "spend": 250},
+            {"name": "Fanny", "store": "Hot Storage", "state": "Town", "spend": 400},
+            {"name": "Bob", "store": "Unfair Price", "state": "West", "spend": 50},
+            {"name": "Bob", "store": "Unfair Price", "state": "East", "spend": 75},
+            {"name": "Alice", "store": "Acme", "state": "FL", "North": 200},
+            {"name": "Alice", "store": "Small C", "state": "NY", "East": 350},
+        ];
+        var ndx = crossfilter(transactionsData);
+        var name_dim = ndx.dimension(dc.pluck('name'));
+        var total_spend_per_person = name_dim.group().reduceSum(dc.pluck('spend'));
+        var store_dim = ndx.dimension(dc.pluck('store'));
+        var total_spend_per_store = store_dim.group().reduceSum(dc.pluck('spend'));
+        var state_dim = ndx.dimension(dc.pluck('state'));
+        var total_spend_per_state = state_dim.group().reduceSum(dc.pluck('spend'));
+        
+        dc.barChart('#name-chart')
+            .width(500)
+            .height(250)
+            .margins({top: 10, right: 50, bottom: 30, left: 50})
+            .dimension(name_dim)
+            .group(total_spend_per_person)
+            .transitionDuration(500)
+            .x(d3.scale.linear())
+            .xUnits(dc.units.ordinal)
+            .xAxisLabel("Name Result")
+            .yAxis().ticks(6);
+        
+        dc.barChart('#store-chart')
+            .width(500)
+            .height(250)
+            .margins({top: 10, right: 50, bottom: 30, left: 50})
+            .dimension(store_dim)
+            .group(total_spend_per_store)
+            .transitionDuration(500)
+            .x(d3.scale.ordinal())
+            .xUnits(dc.units.ordinal)
+            .xAxisLabel("Store Result")
+            .yAxis().ticks(10);
+ 
+         dc.barChart('#state-chart')
+            .width(500)
+            .height(250)
+            .margins({top: 10, right: 50, bottom: 30, left: 50})
+            .dimension(state_dim)
+            .group(total_spend_per_state)
+            .transitionDuration(500)
+            .x(d3.scale.ordinal())
+            .xUnits(dc.units.ordinal)
+            .xAxisLabel("State Result")
+            .yAxis().ticks(10);
+            
+        dc.renderAll();
+    </script>
+</body>
+</html>
